@@ -1,7 +1,7 @@
 import sys
 import pickle
-from ops import OPCODES, MNEMONICS, sta24
-from memory import zero_memory_map, dump_memory, MEMORY_SIZE
+from ops import MNEMONICS
+from memory import MemoryManager
 
 
 def get_lines(file_path):
@@ -21,7 +21,7 @@ def get_lines(file_path):
 
 def assemble(source_lines):
     addr = 0x00
-    memory = zero_memory_map(MEMORY_SIZE)
+    memory = MemoryManager()
     labels = {}
     unresolved = []
 
@@ -45,16 +45,19 @@ def assemble(source_lines):
         opcode = MNEMONICS.get(instruction)
         if opcode is None:
             if instruction.startswith("0X"):
-                memory = sta24(memory, addr, int(instruction, 16))
+                memory.set_memory_le24(addr, int(instruction, 16))
             else:
                 raise ValueError(f"Unknown instruction: {instruction}")
         if opcode is not None:
-            memory[addr] = opcode
+            memory.set_memory(addr, opcode)
             if operand != 0:
-                operand_val = labels.get(operand)
+                if operand.startswith("0x"):
+                    operand_val = int(operand, 16)
+                else:
+                    operand_val = labels.get(operand)
                 if operand_val is None:
                     raise ValueError(f"Unknown operand: {operand}")
-                memory = sta24(memory, addr + 1, operand_val)
+                memory.set_memory_le24(addr + 1, operand_val)
         addr += 4
     return memory
 
@@ -64,6 +67,6 @@ if __name__ == "__main__":
     output_path = sys.argv[2] if len(sys.argv) > 2 else "output.bin"
     lines = get_lines(file_path)
     memory = assemble(lines)
-    # dump_memory(memory)
+    # memory.dump_memory(full=True)
     with open(output_path, "wb") as f:
-        pickle.dump(memory, f)
+        pickle.dump(memory.memory, f)

@@ -1,0 +1,29 @@
+NOP
+LDA foo
+LDX bar
+LDY baz
+LDIA 0x123456
+LDIX 0x789ABC
+LDIY 0xDEF012
+CMP foo
+CMPI 0x123456
+JMP qux
+HLT
+
+foo:
+    0x05
+
+bar:
+    0x02
+
+baz:
+    0xFFFFFF
+
+qux:
+LDIA 0x33FF22
+HLT
+; NOP
+; NOP
+; DEBUG
+; LDIX 0xBBCCAA
+; RET
