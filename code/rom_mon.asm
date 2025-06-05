@@ -11,7 +11,7 @@ WAIT_FOR_INPUT:
 READ_COMMAND:
     CLFZ
     CLFK
-    LDA 0x000090         ; Read keyboard input
+    LDA 0xFF0804         ; Read keyboard input
     CMPI 0x71            ; Check if input is 'q'
     JZ PROCESS_QUIT      ; If input is 'q', process quit
 

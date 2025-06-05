@@ -20,10 +20,8 @@ def keyboard_thread(mem):
         if msvcrt.kbhit():
             kb_char = msvcrt.getch().decode('utf-8', errors='ignore')
             mem.set_kb_flag()
-            # print(f"     Keyboard input: {kb_char}  {type(kb_char)}")
-            # print(f"     Keyboard input: {ord(kb_char)}  {type(ord(kb_char))}")
-            # print(f"     Keyboard input: {hex(ord(kb_char))}  {type(hex(ord(kb_char)))}")
             mem.set_kb_char(ord(kb_char))
+            print(f"{kb_char}", end="", flush=True)
 
 class CPU:
     def load_all_instructions(self, debug=False):
@@ -59,7 +57,7 @@ class CPU:
         self._skip_pc_increment = False
         self.debug = debug
         self.load_all_instructions(debug=debug)
-        self.operand_size = 3
+        self.word_size = 3
 
         # Start the keyboard monitor thread
         self.keyboard_thread = threading.Thread(target=keyboard_thread, args=(self.memory,))
@@ -86,9 +84,6 @@ class CPU:
         self.memory.clear_kb_flag()
 
     def tick(self):
-        if not self.debug:
-            print(".", end="", flush=True)
-
         opcode = self.memory.get_memory(self.PC)
         mnemonic = opcode_map.get(opcode)
         if mnemonic is None:
@@ -117,8 +112,8 @@ class CPU:
 
         while not self.halted:
             self.tick()
-            if self.memory.get_kb_flag():
-                print("-", end="", flush=True)
+            # if self.memory.get_kb_flag():
+            #     print("-", end="", flush=True)
             #     print(f"Keyboard input: {self.memory.get_kb_char()}")
             #     self.memory.clear_kb_flag()  # Don't clear the flag here, it will be cleared by the instruction
             sleep(1 / CLOCK_SPEED)

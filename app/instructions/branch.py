@@ -43,7 +43,7 @@ def call(cpu):
     """
     Call the address in the program counter.
     """
-    cpu.stack_push(cpu.PC + cpu.operand_size)
+    cpu.stack_push(cpu.PC + cpu.word_size)
     cpu.PC = cpu.read_memory(cpu.PC)
     return False
 

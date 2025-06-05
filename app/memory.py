@@ -5,14 +5,14 @@ MEMORY_SIZE = 2 ** 24  # 16MB
 class MemoryManager:
     stack_low = 0x00FF00
     stack_high = 0x00FFFF
+
     video_low = 0xFF0000
     video_high = 0xFF07FF
+
     kb_flag = 0xFF0800
-    # kb_char_low = 0xFF0801
-    # kb_char_high = 0xFF08FF
-    kb_char_low = 0x000090
-    kb_char_high = 0x00009F
-    # ROM
+    kb_char_low = 0xFF0804  # This must be at the start of a word boundary
+    kb_char_high = 0xFF08FF
+
     rom_low = 0xFFF000
     rom_high = 0xFFFFFF
 
