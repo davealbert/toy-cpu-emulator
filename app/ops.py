@@ -1,14 +1,14 @@
 OPCODES = {
-    0x00: "NOP",
+    # 0x00: "NOP",
 
     # Load in to the register A, X or Y
     # With I the value is immediate as opposed to an address
-    0x10: "LDA",
-    0x11: "LDIA",
-    0x12: "LDX",
-    0x13: "LDIX",
-    0x14: "LDY",
-    0x15: "LDIY",
+    # 0x10: "LDA",
+    # 0x11: "LDIA",
+    # 0x12: "LDX",
+    # 0x13: "LDIX",
+    # 0x14: "LDY",
+    # 0x15: "LDIY",
 
 
     # Arithmetic on register A

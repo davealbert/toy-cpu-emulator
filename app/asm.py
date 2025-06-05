@@ -1,7 +1,9 @@
 import sys
 import pickle
-from ops import MNEMONICS
-from memory import MemoryManager
+from app.instructions import mnemonic_map
+from app.memory import MemoryManager
+import os
+import importlib
 
 
 def get_lines(file_path):
@@ -42,7 +44,7 @@ def assemble(source_lines):
         instruction = parts[0].upper()
         operand = parts[1] if len(parts) > 1 else 0
 
-        opcode = MNEMONICS.get(instruction)
+        opcode = mnemonic_map.get(instruction)
         if opcode is None:
             if instruction.startswith("0X"):
                 memory.set_memory_le24(addr, int(instruction, 16))
@@ -61,12 +63,28 @@ def assemble(source_lines):
         addr += 4
     return memory
 
+def load_all_instructions(debug=False):
+    if debug:
+        print("    Loading instructions...")
+    instructions_path = os.path.join(os.path.dirname(__file__), "instructions")
+    for filename in os.listdir(instructions_path):
+        if filename.endswith(".py") and not filename.startswith("__"):
+            module_name = f"app.instructions.{filename[:-3]}"
+            if debug:
+                print(f"    Loading instruction: {filename[:-3]} ({module_name})")
+            importlib.import_module(module_name)
+    if debug:
+        print("    Instructions loaded.\n")
+        print(mnemonic_map)
+
+
 
 if __name__ == "__main__":
+    load_all_instructions(debug=True)
     file_path = sys.argv[1]
     output_path = sys.argv[2] if len(sys.argv) > 2 else "output.bin"
     lines = get_lines(file_path)
     memory = assemble(lines)
-    # memory.dump_memory(full=True)
+    memory.dump_memory(full=True)
     with open(output_path, "wb") as f:
         pickle.dump(memory.memory, f)
