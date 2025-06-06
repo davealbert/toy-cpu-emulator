@@ -32,6 +32,7 @@ CALL_DEBUG:
     RET
 
 WRITE_DISPLAY_MEMORY:
-    LDIY 0x58         ; value for X
-    STY 0xFF0004         ; Write value to memory
+    ;LDIY 0x58         ; value for X
+    ;STY 0xFF0004         ; Write value to memory
+    DMPKB
     RET

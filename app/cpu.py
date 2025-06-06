@@ -5,6 +5,7 @@ from app.instructions import instruction_set, opcode_map
 import os
 import importlib
 from time import sleep
+from datetime import datetime
 
 # TODO: Load ROM from file ../roms/rom_mon.bin
 # rom_path = os.path.join(os.path.dirname(__file__), "../roms", "rom_mon.bin")
@@ -15,13 +16,26 @@ DEFAULT_CLOCK_SPEED = 3  # 3 Ticks per second
 CLOCK_SPEED = int(os.getenv("CLOCK_SPEED", DEFAULT_CLOCK_SPEED))
 
 def keyboard_thread(mem):
+    write_offset = 0
     while True:
         # TODO: This is only for Windows, need to implement a cross-platform solution later
         if msvcrt.kbhit():
             kb_char = msvcrt.getch().decode('utf-8', errors='ignore')
-            mem.set_kb_flag()
-            mem.set_kb_char(ord(kb_char))
+            mem.set_kb_char(write_offset, ord(kb_char))
             print(f"{kb_char}", end="", flush=True)
+
+            if write_offset > 0xFF:
+                write_offset = 0
+            if ord(kb_char) == 0x0D:
+                print(f"\033[4;0H {datetime.now().isoformat()}", end="", flush=True)
+                mem.set_kb_char(write_offset, 0x00)
+                mem.set_kb_flag()
+                mem.write_offset = write_offset
+                write_offset = 0
+                continue
+
+            write_offset += 1
+
 
 class CPU:
     def load_all_instructions(self, debug=False):
@@ -65,7 +79,6 @@ class CPU:
         self.keyboard_thread.start()
         self.display_memory = [0] * (self.memory.video_high - self.memory.video_low + 1)
 
-
     def skip_pc_increment(self):
         self._skip_pc_increment = True
 
@@ -91,7 +104,7 @@ class CPU:
             print(
                 f"PC: {self.PC:02X} A: {self.A:02X} X: {self.X:02X} "
                 f"Y: {self.Y:02X} SP: {self.SP:02X} Flags: {self.flags} "
-                f"{mnemonic} {opcode:02X} KB Flag: {self.memory.get_kb_flag()}, KB Char: {self.memory.get_kb_char()}"
+                f"{mnemonic} {opcode:02X} KB Flag: {self.memory.get_kb_flag()}, KB Char: {self.memory.get_kb_char(0)}"
             )
             raise ValueError(f"Unknown opcode: {opcode:02X}")
         instruction = instruction_set.get(mnemonic)
@@ -100,7 +113,7 @@ class CPU:
             print(
                 f"    PC: {self.PC:02X} A: {self.A:02X} X: {self.X:02X} "
                 f"Y: {self.Y:02X} SP: {self.SP:02X} Flags: {self.flags} "
-                f"{mnemonic} {opcode:02X} KB Flag: {self.memory.get_kb_flag()}, KB Char: {self.memory.get_kb_char()}"
+                f"{mnemonic} {opcode:02X} KB Flag: {self.memory.get_kb_flag()}, KB Char: {self.memory.get_kb_char(0)}"
             )
         should_step = instruction(self)
         if should_step:
@@ -136,10 +149,10 @@ class CPU:
 
     def stat(self, with_stack=False):
         """Print out the current state of the CPU"""
-        print(f"PC: {self.PC:02X} A: {self.A:02X} X: {self.X:02X} Y: {self.Y:02X} SP: {self.SP:02X} Flags: {self.flags}")
-        print(f"   KB Flag: {self.memory.get_kb_flag()}, KB Char: {self.memory.get_kb_char()}")
+        print(f"PC: {self.PC:02X} A: {self.A:02X} X: {self.X:02X} Y: {self.Y:02X} SP: {self.SP:02X} Flags: {self.flags}                                   ")
+        print(f"   KB Flag: {self.memory.get_kb_flag()}, KB Char: {self.memory.get_kb_char(0)}, Write Offset {self.memory.write_offset}                                                          ")
         if with_stack:
-            print(f"Stack: {self.stack}")
+            print(f"Stack: {self.stack}                                                                                                                   ")
 
     def stack_push(self, value):
         # TODO: Implement stack in memory instead of a list

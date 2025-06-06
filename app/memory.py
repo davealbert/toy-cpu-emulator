@@ -11,8 +11,8 @@ class MemoryManager:
     video_high = 0xFF0010
 
     kb_flag = 0xFF0800
-    kb_char_low = 0xFF0804  # This must be at the start of a word boundary
-    kb_char_high = 0xFF08FF
+    kb_char_low = kb_flag + 0x000004  # This must be at the start of a word boundary
+    kb_char_high = kb_char_low + 0x00000F
 
     rom_low = 0xFFF000
     rom_high = 0xFFFFFF
@@ -23,6 +23,7 @@ class MemoryManager:
                 self.memory = pickle.load(f)
         else:
             self.memory = {}
+        self.write_offset = None
 
     def set_memory(self, addr, value):
         if addr >= self.stack_low and addr <= self.stack_high:
@@ -61,12 +62,22 @@ class MemoryManager:
     def get_kb_flag(self):
         return self.memory.get(self.kb_flag, 0)
 
-    def set_kb_char(self, value):
-        self.memory[self.kb_char_low] = value & 0xFF
+    def set_kb_char(self, offset, value):
+        self.memory[self.kb_char_low + offset] = value & 0xFF
 
-    def get_kb_char(self):
-        # TODO: update kb to handle more than 1 character later
-        return self.memory.get(self.kb_char_low, 0)
+    def get_kb_char(self, offset):
+        return self.memory.get(self.kb_char_low + offset, 0)
+
+    def dump_kb_buffer(self):
+        print(f"\n\n                                                                                        \nKB Buffer:")
+        count = self.kb_char_high - self.kb_char_low
+        for i in range(count):
+            print(f"{i:02X}:  0x{self.get_kb_char(i):02X} ", end="", flush=True)
+            if (i) % 4 == 3:
+                print("    ", end="", flush=True)
+            if (i) % 8 == 7:
+                print("")
+        print("")
 
     # ROM
     def set_rom(self, addr, value):
