@@ -63,6 +63,7 @@ class CPU:
         self.keyboard_thread = threading.Thread(target=keyboard_thread, args=(self.memory,))
         self.keyboard_thread.daemon = True
         self.keyboard_thread.start()
+        self.display_memory = [0] * (self.memory.video_high - self.memory.video_low + 1)
 
 
     def skip_pc_increment(self):
@@ -105,13 +106,28 @@ class CPU:
         if should_step:
             self.move_pc(3)
 
+    def update_display(self):
+        for i in range(self.memory.video_low, self.memory.video_high + 1):
+            index = i - self.memory.video_low
+
+            if self.display_memory[index] != self.memory.get_memory(i):
+                self.display_memory[index] = self.memory.get_memory(i)
+                print(f"\033[0;{index + 1}H{chr(self.display_memory[index])}", end="", flush=True)
+        print(f"\033[3;0H> ", end="", flush=True)
+
+
     def run(self, start_addr=0x00):
         if self.debug:
             print("  Running in debug mode.")
         self.PC = start_addr
 
+        for i in range(self.memory.video_low, self.memory.video_high + 1):
+            self.memory.set_memory(i, 0x61 + i - self.memory.video_low)
+
+        os.system("cls")
         while not self.halted:
             self.tick()
+            self.update_display()
             # if self.memory.get_kb_flag():
             #     print("-", end="", flush=True)
             #     print(f"Keyboard input: {self.memory.get_kb_char()}")

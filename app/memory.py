@@ -7,7 +7,8 @@ class MemoryManager:
     stack_high = 0x00FFFF
 
     video_low = 0xFF0000
-    video_high = 0xFF07FF
+    # video_high = 0xFF07FF
+    video_high = 0xFF0010
 
     kb_flag = 0xFF0800
     kb_char_low = 0xFF0804  # This must be at the start of a word boundary
@@ -34,8 +35,8 @@ class MemoryManager:
             print(f"Trying to update ROM at {addr:06X} with {value:02X}")
             raise ValueError("Invalid memory address (reserved for ROM)")
         self.memory[addr] = value
-        if addr >= self.video_low and addr <= self.video_high:
-            print(f"Should update video display at {addr:06X} with {value:02X}")
+        # if addr >= self.video_low and addr <= self.video_high:
+        #     print(f"Should update video display at {addr:06X} with {value:02X}")
 
     def set_memory_le24(self, addr, value):
         self.set_memory(addr,     value & 0xFF)

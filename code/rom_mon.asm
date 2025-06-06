@@ -18,6 +18,10 @@ READ_COMMAND:
     ; DEBUG
     CMPI 0x64            ; Check if input is 'd'
     JZ CALL_DEBUG
+
+    ; WRITE_DISPLAY_MEMORY
+    CMPI 0x77            ; Check if input is 'w'
+    JZ WRITE_DISPLAY_MEMORY
     RET
 
 PROCESS_QUIT:
@@ -27,3 +31,7 @@ CALL_DEBUG:
     DEBUG
     RET
 
+WRITE_DISPLAY_MEMORY:
+    LDIY 0x58         ; value for X
+    STY 0xFF0004         ; Write value to memory
+    RET
