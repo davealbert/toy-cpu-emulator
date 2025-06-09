@@ -70,14 +70,18 @@ class MemoryManager:
 
     def dump_kb_buffer(self):
         print(f"\n\n                                                                                        \nKB Buffer:")
-        count = self.kb_char_high - self.kb_char_low
-        for i in range(count):
-            print(f"{i:02X}:  0x{self.get_kb_char(i):02X} ", end="", flush=True)
+        for i in range(self.kb_char_low, self.kb_char_high):
+            print(f"0x{i:06X}  0x{self.get_kb_char(i):02X} ", end="", flush=True)
             if (i) % 4 == 3:
                 print("    ", end="", flush=True)
             if (i) % 8 == 7:
                 print("")
         print("")
+
+    def clear_kb_buffer(self):
+        print(f"Clearing kb buffer from {self.kb_char_low:06X} to {self.kb_char_high:06X}"  )
+        for i in range(self.kb_char_low, self.kb_char_high):
+            self.memory[i] = 0x00
 
     # ROM
     def set_rom(self, addr, value):

@@ -6,11 +6,11 @@ WAIT_FOR_INPUT:
     JZ WAIT_FOR_INPUT   ; If input is 0, wait for input again
 
     CALL READ_COMMAND
+    CLFK
     JMP WAIT_FOR_INPUT
 
 READ_COMMAND:
-    CLFZ
-    CLFK
+    ;CLFZ
     LDA 0xFF0804         ; Read keyboard input
     CMPI 0x71            ; Check if input is 'q'
     JZ PROCESS_QUIT      ; If input is 'q', process quit

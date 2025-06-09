@@ -27,7 +27,9 @@ def keyboard_thread(mem):
             if write_offset > 0xFF:
                 write_offset = 0
             if ord(kb_char) == 0x0D:
-                print(f"\033[4;0H {datetime.now().isoformat()}", end="", flush=True)
+                # print(f"\033[4;0H {datetime.now().isoformat()}", end="", flush=True)
+                # print("\n\n")
+                # mem.dump_kb_buffer()
                 mem.set_kb_char(write_offset, 0x00)
                 mem.set_kb_flag()
                 mem.write_offset = write_offset
@@ -125,8 +127,8 @@ class CPU:
 
             if self.display_memory[index] != self.memory.get_memory(i):
                 self.display_memory[index] = self.memory.get_memory(i)
-                print(f"\033[0;{index + 1}H{chr(self.display_memory[index])}", end="", flush=True)
-        print(f"\033[3;0H> ", end="", flush=True)
+        #         print(f"\033[0;{index + 1}H{chr(self.display_memory[index])}", end="", flush=True)
+        # print(f"\033[3;0H> ", end="", flush=True)
 
 
     def run(self, start_addr=0x00):

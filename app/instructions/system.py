@@ -40,6 +40,7 @@ def clfk(cpu):
     Clear the keyboard flag.
     """
     cpu.memory.clear_kb_flag()
+    cpu.memory.clear_kb_buffer()
     return True
 
 @instruction("DMPKB", 0xFC)
